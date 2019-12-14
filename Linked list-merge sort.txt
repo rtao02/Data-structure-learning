@@ -1,0 +1,157 @@
+
+#include <iostream>
+
+using namespace std;
+
+
+class Node {
+public:
+	int value;
+	Node* next;
+	Node(int i) { value = i; next = nullptr; }
+	Node() { next = nullptr; }
+};
+
+class LinkedList {
+public:
+	int numNodes;
+	Node* head;
+	LinkedList() { numNodes = 0; head = nullptr; }
+	void makeRandomList(int m, int n);
+	void printList();
+	//Recursively merge sort i numbers starting at node pointed by p
+	void mergeSort(Node*& p, int i);//in-place recursive merge sort
+	//Merge i1 numbers starting at node pointed by p1 with i2 numbers
+	//starting at node pointed by p2
+	void merge(Node*& p1, int i1, Node* p2, int i2);
+};
+
+void LinkedList::mergeSort(Node*& p, int i) {
+	int m = 1, j = 2;
+	Node* firstpBeg;
+	Node* secondpBeg;
+	//if the length of linked list is 1 or 0
+	if (p == nullptr || p->next == nullptr) {
+		return;
+	}
+	//split list to 2 parts
+	Node* firstpEnd;
+	Node* secondpEnd;
+	firstpEnd = p;
+	secondpEnd = p->next;
+	while (secondpEnd != nullptr) {
+		secondpEnd = secondpEnd->next;
+		j = j + 1;
+		if (secondpEnd != nullptr) {
+			firstpEnd = firstpEnd->next;
+			m = m + 1;
+			secondpEnd = secondpEnd->next;
+			j = j + 1;
+		}
+	}
+	j = j - m - 1;
+
+	secondpBeg = firstpEnd->next;
+	firstpEnd->next = nullptr;
+	//recursive
+	mergeSort(p, m);
+	mergeSort(secondpBeg, j);
+	//merge to 1 part
+	LinkedList::merge(p, m, secondpBeg, j);
+
+}
+
+void LinkedList::merge(Node*& p1, int i1, Node* p2, int i2) {
+	Node* cur1 = p1;
+	Node* cur2 = p2;
+	Node* last = cur1;
+	Node* temp;
+	for (int k = 0; k < i1 + i2; k++) {
+		if (cur1 == nullptr && cur2 != nullptr) {
+			last->next = cur2;
+			last = cur2;
+			cur2 = cur2->next;
+		}
+		else if (cur2 == nullptr && cur1 != nullptr) {
+			last->next = cur1;
+			last = cur1;
+			cur1 = cur1->next;
+		}
+		else if (cur1 != nullptr && cur2 != nullptr && cur1->value <= cur2->value) {
+			if (cur1 != p1) {
+				last->next = cur1;
+				last = cur1;
+				cur1 = cur1->next;
+			}
+			else if (cur1 == p1) {
+				last = cur1;
+				cur1 = cur1->next;
+			}
+		}
+		else if (cur1 != nullptr && cur2 != nullptr && cur1->value > cur2->value) {
+			if (cur1->next == nullptr && cur2->next == nullptr && cur1 == p1) {
+				cur2->next = cur1;
+				p1 = cur2;
+				cur1 = cur1->next;
+				cur2 = nullptr;
+			}
+			else if (cur1->next != nullptr && cur2->next == nullptr && cur1 == p1) {
+				cur2->next = cur1;
+				p1 = cur2;
+				last = cur1->next;
+				cur1 = nullptr;
+				cur2 = nullptr;
+			}
+			else if (cur1->next != nullptr && cur2->next != nullptr && cur1 == p1) {
+				temp = cur2->next;
+				cur2->next = cur1;
+				p1 = cur2;
+				last = cur2;
+				cur2 = temp;
+			}
+			else if (cur1 != p1) {
+				last->next = cur2;
+				last = cur2;
+				cur2 = cur2->next;
+			}
+		}
+	}
+
+}
+
+
+void LinkedList::makeRandomList(int m, int n) {
+
+	for (int i = 0; i < m; i++) {
+		Node* p1 = new Node(rand() % n);
+		p1->next = head;
+		head = p1;
+		numNodes++;
+	}
+}
+
+void LinkedList::printList() {
+	cout << endl;
+	Node* p1 = head;
+	while (p1 != nullptr) {
+		cout << p1->value << " ";
+		p1 = p1->next;
+	}
+}
+
+
+int main() {
+
+	LinkedList d1;
+
+	d1.makeRandomList(40, 20);
+	d1.printList();
+
+	d1.mergeSort(d1.head, d1.numNodes);
+	d1.printList();
+
+	getchar();
+	getchar();
+	return 0;
+
+}

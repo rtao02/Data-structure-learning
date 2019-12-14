@@ -1,0 +1,1061 @@
+//Using DFS & BFS find maze's destination and print the path and solution
+/*
+Format for maze.txt:
+16 //number of cells
+0//starting cell
+15//target cell
+8 4 5 6 10 9 6 10 8 6 11 10 11 9 7 10//cell walls
+*/
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <math.h>
+#include <stack>
+#include <queue>
+using namespace std;
+
+class cell {
+public:
+	int id;
+	int wall;
+	bool visited;
+	bool in_structure;
+	int from;
+	//design your constructor
+	cell() {};
+	cell(int i, int w) {
+		id = i;
+		wall = w;
+		visited = 0;
+		in_structure = 0;
+		from = -1;
+	};
+};
+
+void DFS(vector<cell>& maze, int n, int start, int end);//end is target cell
+void BFS(vector<cell>& maze, int n, int start, int end);
+void PrintMaze(vector<cell> maze, int n);
+void PrintSolution(vector<cell> maze, int n);
+
+void BFS(vector<cell>& maze, int n, int start, int end) {
+	int sqrtnumCell = sqrt(n);
+	queue<cell> q;
+	q.push(maze[start]);
+	maze[start].in_structure = 1;
+	while (q.empty() != 1) {
+		cell m;
+		m = q.front();
+		q.pop();
+		int popid;
+		popid = m.id;
+		maze[popid].visited = 1;
+		int curwall = maze[popid].wall;
+		//we have three walls, one neighbour
+		if (curwall == 14) {
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 13) {
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 11) {
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 7) {
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		//we have two walls, two neighbours
+		else if (curwall == 12) {//1 2 
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 10) {//1 4
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 9) {//2 4
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0 && popid - sqrtnumCell >= 0) {//4
+				if (popid - sqrtnumCell >= 0) {//4
+					if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+						maze[popid - sqrtnumCell].from = popid;
+						maze[popid - sqrtnumCell].in_structure = 1;
+						q.push(maze[popid - sqrtnumCell]);
+						if (maze[popid - sqrtnumCell].id == end) { break; }
+					}
+				}
+			}
+		}
+		else if (curwall == 6) {//1 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 5) {//2 8
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 3) {//4 8
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		//when we have one wall, three neighbours
+		else if (curwall == 8) {//1 2 4
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 4) {//1 2 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 2) {//1 4 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 1) {//2 4 8
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}	//when we have zero wall, 4 neighbours
+		else if (curwall == 0) {//1 2 4 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					q.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					q.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					q.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					q.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+	}
+
+	vector<cell> solution;
+	for (auto m : maze) {
+		cell temp = m;
+		temp.visited = 0;
+		solution.push_back(temp);
+	}
+
+	if (q.empty() == 1) {
+		cout << "\n";
+		cout << "BFS's result: " << "\n";
+		cout << "No Solution." << endl;
+	}
+	else {
+		cout << "\n";
+		cout << "BFS's result: " << "\n";
+		int curcell = end;
+		solution[curcell].visited = 1;
+		stack<int> printhelper;
+		printhelper.push(end);
+		while (curcell != start) {
+			printhelper.push(maze[curcell].from);
+			curcell = maze[curcell].from;
+			solution[curcell].visited = 1;
+		}
+		int temp;
+		temp = printhelper.top();
+		printhelper.pop();
+		cout << temp << " ";
+		while (printhelper.empty() != 1) {
+			temp = printhelper.top();
+			printhelper.pop();
+			cout << "-> " << temp << " ";
+		}
+		cout << "\n";
+	}
+
+
+	/*if (q.empty() != 1) {
+		maze[end].visited = 1;
+	}*/
+	cout << "\n";
+	cout << "BFS's Solution:" << "\n";
+	PrintSolution(solution, n);
+
+	cout << "\n";
+	cout << "BFS's path:" << "\n";
+	PrintMaze(maze, n);
+}
+
+void DFS(vector<cell>& maze, int n, int start, int end) {
+	int sqrtnumCell = sqrt(n);
+	stack<cell> s;
+	s.push(maze[start]);
+	maze[start].in_structure = 1;
+	while (s.empty() != 1) {
+		cell m;
+		m = s.top();
+		s.pop();
+		int popid;
+		popid = m.id;
+		maze[popid].visited = 1;
+		int curwall = maze[popid].wall;
+		//we have three walls, one neighbour
+		if (curwall == 14) {
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 13) {
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 11) {
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 7) {
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		//we have two walls, two neighbours
+		else if (curwall == 12) {//1 2 
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 10) {//1 4
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 9) {//2 4
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0 && popid - sqrtnumCell >= 0) {//4
+				if (popid - sqrtnumCell >= 0) {//4
+					if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+						maze[popid - sqrtnumCell].from = popid;
+						maze[popid - sqrtnumCell].in_structure = 1;
+						s.push(maze[popid - sqrtnumCell]);
+						if (maze[popid - sqrtnumCell].id == end) { break; }
+					}
+				}
+			}
+		}
+		else if (curwall == 6) {//1 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 5) {//2 8
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 3) {//4 8
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		//when we have one wall, three neighbours
+		else if (curwall == 8) {//1 2 4
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 4) {//1 2 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 2) {//1 4 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+		else if (curwall == 1) {//2 4 8
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}	
+		//when we have zero wall, 4 neighbours
+		else if (curwall == 0) {//1 2 4 8
+			if (popid + sqrtnumCell <= n - 1) {//1
+				if (maze[popid + sqrtnumCell].visited == 0 && maze[popid + sqrtnumCell].in_structure == 0) {
+					maze[popid + sqrtnumCell].from = popid;
+					maze[popid + sqrtnumCell].in_structure = 1;
+					s.push(maze[popid + sqrtnumCell]);
+					if (maze[popid + sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid + 1 <= n - 1) {//2
+				if (maze[popid + 1].visited == 0 && maze[popid + 1].in_structure == 0) {
+					maze[popid + 1].from = popid;
+					maze[popid + 1].in_structure = 1;
+					s.push(maze[popid + 1]);
+					if (maze[popid + 1].id == end) { break; }
+				}
+			}
+			if (popid - sqrtnumCell >= 0) {//4
+				if (maze[popid - sqrtnumCell].visited == 0 && maze[popid - sqrtnumCell].in_structure == 0) {
+					maze[popid - sqrtnumCell].from = popid;
+					maze[popid - sqrtnumCell].in_structure = 1;
+					s.push(maze[popid - sqrtnumCell]);
+					if (maze[popid - sqrtnumCell].id == end) { break; }
+				}
+			}
+			if (popid - 1 >= 0) {//8
+				if (maze[popid - 1].visited == 0 && maze[popid - 1].in_structure == 0) {
+					maze[popid - 1].from = popid;
+					maze[popid - 1].in_structure = 1;
+					s.push(maze[popid - 1]);
+					if (maze[popid - 1].id == end) { break; }
+				}
+			}
+		}
+
+	}
+	
+	vector<cell> solution;
+	for (auto m : maze) {
+		cell temp = m;
+		temp.visited = 0;
+		solution.push_back(temp);
+	}
+
+	if (s.empty() == 1) {
+		cout << "DFS's result: " << "\n";
+		cout << "No Solution." << endl;
+	}
+	else {
+		cout << "DFS's result: " << "\n";
+		int curcell = end;
+		solution[curcell].visited = 1;
+		stack<int> printhelper;
+		printhelper.push(end);
+		while (curcell != start) {
+			printhelper.push(maze[curcell].from);
+			curcell = maze[curcell].from;
+			solution[curcell].visited = 1;
+		}
+		int temp;
+		temp = printhelper.top();
+		printhelper.pop();
+		cout << temp << " ";
+		while (printhelper.empty() != 1) {
+			temp = printhelper.top();
+			printhelper.pop();
+			cout << "-> " << temp << " ";
+		}
+		cout << "\n";
+	}
+
+	cout << "\n";
+	cout << "DFS's Solution:" << "\n";
+	PrintSolution(solution, n);
+
+	cout << "\n";
+	cout << "DFS's path:" << "\n";
+	PrintMaze(maze, n);
+}
+
+void PrintMaze(vector<cell> maze, int n) {
+	int sqn = sqrt(n);
+	//print first line in !graph!
+	for (int i = 0; i < sqn; i++) {
+		if (maze[i].wall == 4 || maze[i].wall == 5 || maze[i].wall == 6 || maze[i].wall == 12 || maze[i].wall == 7 || maze[i].wall == 13 || maze[i].wall == 14 || maze[i].wall == 15) {//check up
+			cout << " __";
+		}
+		else {
+			cout << "   ";
+		}
+	}
+	cout << " ";
+	cout << "\n";
+	int j_cnt = 0;
+	for (int j = 0; j < sqn - 1; j++) {//print columns
+		if (maze[sqn * j].wall == 8 || maze[sqn * j].wall == 9 || maze[sqn * j].wall == 10 || maze[sqn * j].wall == 12 || maze[sqn * j].wall == 11 || maze[sqn * j].wall == 13 || maze[sqn * j].wall == 14 || maze[sqn * j].wall == 15) {//check left
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		int k_cnt = 0;
+		for (int k = 0; k < sqn - 1; k++) {//print rows
+			if (maze[sqn * j + k].wall == 1 || maze[sqn * j + k].wall == 3 || maze[sqn * j + k].wall == 5 || maze[sqn * j + k].wall == 9 || maze[sqn * j + k].wall == 7 || maze[sqn * j + k].wall == 11 || maze[sqn * j + k].wall == 13 || maze[sqn * j + k].wall == 15 || maze[sqn * j + k + sqn].wall == 4 || maze[sqn * j + k + sqn].wall == 5 || maze[sqn * j + k + sqn].wall == 6 || maze[sqn * j + k + sqn].wall == 12 || maze[sqn * j + k + sqn].wall == 7 || maze[sqn * j + k + sqn].wall == 13 || maze[sqn * j + k + sqn].wall == 14 || maze[sqn * j + k + sqn].wall == 15) {
+				//check down and up
+				if (maze[sqn * j + k].in_structure == 1) {
+					cout << "_*";
+				}
+				else {
+					cout << "__";
+				}
+			}
+			else {
+				if (maze[sqn * j + k].in_structure == 1) {
+					cout << " *";
+				}
+				else {
+					cout << "  ";
+				}
+			}
+			if (maze[sqn * j + k + 1].wall == 8 || maze[sqn * j + k + 1].wall == 9 || maze[sqn * j + k + 1].wall == 10 || maze[sqn * j + k + 1].wall == 12 || maze[sqn * j + k + 1].wall == 11 || maze[sqn * j + k + 1].wall == 13 || maze[sqn * j + k + 1].wall == 14 || maze[sqn * j + k + 1].wall == 15 || maze[sqn * j + k].wall == 2 || maze[sqn * j + k].wall == 3 || maze[sqn * j + k].wall == 6 || maze[sqn * j + k].wall == 10 || maze[sqn * j + k].wall == 7 || maze[sqn * j + k].wall == 11 || maze[sqn * j + k].wall == 14 || maze[sqn * j + k].wall == 15) {
+				//check left and right
+				cout << "|";
+			}
+			else {
+				cout << " ";
+			}
+			k_cnt++;
+		}
+		//last element of this row
+		if (maze[sqn * j + k_cnt].wall == 1 || maze[sqn * j + k_cnt].wall == 3 || maze[sqn * j + k_cnt].wall == 5 || maze[sqn * j + k_cnt].wall == 9 || maze[sqn * j + k_cnt].wall == 7 || maze[sqn * j + k_cnt].wall == 11 || maze[sqn * j + k_cnt].wall == 13 || maze[sqn * j + k_cnt].wall == 15 || maze[sqn * j + k_cnt + sqn].wall == 4 || maze[sqn * j + k_cnt + sqn].wall == 5 || maze[sqn * j + k_cnt + sqn].wall == 6 || maze[sqn * j + k_cnt + sqn].wall == 12 || maze[sqn * j + k_cnt + sqn].wall == 7 || maze[sqn * j + k_cnt + sqn].wall == 11 || maze[sqn * j + k_cnt + sqn].wall == 13 || maze[sqn * j + k_cnt + sqn].wall == 15) {
+			//check_cnt down and up
+			if (maze[sqn * j + k_cnt].in_structure == 1) {
+				cout << "_*";
+			}
+			else {
+				cout << "__";
+			}
+		}
+		else {
+			if (maze[sqn * j + k_cnt].in_structure == 1) {
+				cout << " *";
+			}
+			else {
+				cout << "  ";
+			}
+		}
+		if (maze[sqn * j + k_cnt].wall == 2 || maze[sqn * j + k_cnt].wall == 3 || maze[sqn * j + k_cnt].wall == 6 || maze[sqn * j + k_cnt].wall == 10 || maze[sqn * j + k_cnt].wall == 7 || maze[sqn * j + k_cnt].wall == 11 || maze[sqn * j + k_cnt].wall == 14 || maze[sqn * j + k_cnt].wall == 15) {
+			//check right
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		cout << "\n";
+		j_cnt++;
+	}
+	//print last row
+	if (maze[sqn * j_cnt].wall == 8 || maze[sqn * j_cnt].wall == 9 || maze[sqn * j_cnt].wall == 10 || maze[sqn * j_cnt].wall == 12 || maze[sqn * j_cnt].wall == 11 || maze[sqn * j_cnt].wall == 13 || maze[sqn * j_cnt].wall == 14 || maze[sqn * j_cnt].wall == 15) {
+		//check left
+		cout << "|";
+	}
+	else {
+		cout << " ";
+	}
+	int l_cnt = 0;
+	for (int l = 0; l < sqn - 1; l++) {
+		if (maze[sqn * j_cnt + l].wall == 1 || maze[sqn * j_cnt + l].wall == 3 || maze[sqn * j_cnt + l].wall == 5 || maze[sqn * j_cnt + l].wall == 9 || maze[sqn * j_cnt + l].wall == 7 || maze[sqn * j_cnt + l].wall == 11 || maze[sqn * j_cnt + l].wall == 13 || maze[sqn * j_cnt + l].wall == 15) {
+			//check down
+			if (maze[sqn * j_cnt + l].in_structure) {
+				cout << "_*";
+			}
+			else {
+				cout << "__";
+			}
+		}
+		else {
+			if (maze[sqn * j_cnt + l].in_structure) {
+				cout << " *";
+			}
+			else {
+				cout << "  ";
+			}
+		}
+		if (maze[sqn * j_cnt + l].wall == 2 || maze[sqn * j_cnt + l].wall == 3 || maze[sqn * j_cnt + l].wall == 6 || maze[sqn * j_cnt + l].wall == 10 || maze[sqn * j_cnt + l].wall == 7 || maze[sqn * j_cnt + l].wall == 11 || maze[sqn * j_cnt + l].wall == 14 || maze[sqn * j_cnt + l].wall == 15 || maze[sqn * j_cnt + l + 1].wall == 8 || maze[sqn * j_cnt + l + 1].wall == 9 || maze[sqn * j_cnt + l + 1].wall == 10 || maze[sqn * j_cnt + l + 1].wall == 12 || maze[sqn * j_cnt + l + 1].wall == 11 || maze[sqn * j_cnt + l + 1].wall == 13 || maze[sqn * j_cnt + l + 1].wall == 14 || maze[sqn * j_cnt + l + 1].wall == 15) {
+			//check right and left
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		l_cnt++;
+	}
+	if (maze[sqn * j_cnt + l_cnt].wall == 1 || maze[sqn * j_cnt + l_cnt].wall == 3 || maze[sqn * j_cnt + l_cnt].wall == 5 || maze[sqn * j_cnt + l_cnt].wall == 9 || maze[sqn * j_cnt + l_cnt].wall == 7 || maze[sqn * j_cnt + l_cnt].wall == 11 || maze[sqn * j_cnt + l_cnt].wall == 13 || maze[sqn * j_cnt + l_cnt].wall == 15) {
+		//check down
+		if (maze[sqn * j_cnt + l_cnt].in_structure) {
+			cout << "_*";
+		}
+		else {
+			cout << "__";
+		}
+	}
+	else {
+		if (maze[sqn * j_cnt + l_cnt].in_structure) {
+			cout << " *";
+		}
+		else {
+			cout << "  ";
+		}
+	}
+	if (maze[sqn * j_cnt + l_cnt].wall == 2 || maze[sqn * j_cnt + l_cnt].wall == 3 || maze[sqn * j_cnt + l_cnt].wall == 6 || maze[sqn * j_cnt + l_cnt].wall == 10 || maze[sqn * j_cnt + l_cnt].wall == 7 || maze[sqn * j_cnt + l_cnt].wall == 11 || maze[sqn * j_cnt + l_cnt].wall == 14 || maze[sqn * j_cnt + l_cnt].wall == 15) {
+		cout << "|";
+	}
+	else {
+		cout << " ";
+	}
+	cout << "\n";
+}
+
+void PrintSolution(vector<cell> maze, int n) {
+	int sqn = sqrt(n);
+	//print first line in !graph!
+	for (int i = 0; i < sqn; i++) {
+		if (maze[i].wall == 4 || maze[i].wall == 5 || maze[i].wall == 6 || maze[i].wall == 12 || maze[i].wall == 7 || maze[i].wall == 13 || maze[i].wall == 14 || maze[i].wall == 15) {//check up
+			cout << " __";
+		}
+		else {
+			cout << "   ";
+		}
+	}
+	cout << " ";
+	cout << "\n";
+	int j_cnt = 0;
+	for (int j = 0; j < sqn - 1; j++) {//print columns
+		if (maze[sqn * j].wall == 8 || maze[sqn * j].wall == 9 || maze[sqn * j].wall == 10 || maze[sqn * j].wall == 12 || maze[sqn * j].wall == 11 || maze[sqn * j].wall == 13 || maze[sqn * j].wall == 14 || maze[sqn * j].wall == 15) {//check left
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		int k_cnt = 0;
+		for (int k = 0; k < sqn - 1; k++) {//print rows
+			if (maze[sqn * j + k].wall == 1 || maze[sqn * j + k].wall == 3 || maze[sqn * j + k].wall == 5 || maze[sqn * j + k].wall == 9 || maze[sqn * j + k].wall == 7 || maze[sqn * j + k].wall == 11 || maze[sqn * j + k].wall == 13 || maze[sqn * j + k].wall == 15 || maze[sqn * j + k + sqn].wall == 4 || maze[sqn * j + k + sqn].wall == 5 || maze[sqn * j + k + sqn].wall == 6 || maze[sqn * j + k + sqn].wall == 12 || maze[sqn * j + k + sqn].wall == 7 || maze[sqn * j + k + sqn].wall == 13 || maze[sqn * j + k + sqn].wall == 14 || maze[sqn * j + k + sqn].wall == 15) {
+				//check down and up
+				if (maze[sqn * j + k].visited == 1) {
+					cout << "_*";
+				}
+				else {
+					cout << "__";
+				}
+			}
+			else {
+				if (maze[sqn * j + k].visited == 1) {
+					cout << " *";
+				}
+				else {
+					cout << "  ";
+				}
+			}
+			if (maze[sqn * j + k + 1].wall == 8 || maze[sqn * j + k + 1].wall == 9 || maze[sqn * j + k + 1].wall == 10 || maze[sqn * j + k + 1].wall == 12 || maze[sqn * j + k + 1].wall == 11 || maze[sqn * j + k + 1].wall == 13 || maze[sqn * j + k + 1].wall == 14 || maze[sqn * j + k + 1].wall == 15 || maze[sqn * j + k].wall == 2 || maze[sqn * j + k].wall == 3 || maze[sqn * j + k].wall == 6 || maze[sqn * j + k].wall == 10 || maze[sqn * j + k].wall == 7 || maze[sqn * j + k].wall == 11 || maze[sqn * j + k].wall == 14 || maze[sqn * j + k].wall == 15) {
+				//check left and right
+				cout << "|";
+			}
+			else {
+				cout << " ";
+			}
+			k_cnt++;
+		}
+		//last element of this row
+		if (maze[sqn * j + k_cnt].wall == 1 || maze[sqn * j + k_cnt].wall == 3 || maze[sqn * j + k_cnt].wall == 5 || maze[sqn * j + k_cnt].wall == 9 || maze[sqn * j + k_cnt].wall == 7 || maze[sqn * j + k_cnt].wall == 11 || maze[sqn * j + k_cnt].wall == 13 || maze[sqn * j + k_cnt].wall == 15 || maze[sqn * j + k_cnt + sqn].wall == 4 || maze[sqn * j + k_cnt + sqn].wall == 5 || maze[sqn * j + k_cnt + sqn].wall == 6 || maze[sqn * j + k_cnt + sqn].wall == 12 || maze[sqn * j + k_cnt + sqn].wall == 7 || maze[sqn * j + k_cnt + sqn].wall == 11 || maze[sqn * j + k_cnt + sqn].wall == 13 || maze[sqn * j + k_cnt + sqn].wall == 15) {
+			//check_cnt down and up
+			if (maze[sqn * j + k_cnt].visited == 1) {
+				cout << "_*";
+			}
+			else {
+				cout << "__";
+			}
+		}
+		else {
+			if (maze[sqn * j + k_cnt].visited == 1) {
+				cout << " *";
+			}
+			else {
+				cout << "  ";
+			}
+		}
+		if (maze[sqn * j + k_cnt].wall == 2 || maze[sqn * j + k_cnt].wall == 3 || maze[sqn * j + k_cnt].wall == 6 || maze[sqn * j + k_cnt].wall == 10 || maze[sqn * j + k_cnt].wall == 7 || maze[sqn * j + k_cnt].wall == 11 || maze[sqn * j + k_cnt].wall == 14 || maze[sqn * j + k_cnt].wall == 15) {
+			//check right
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		cout << "\n";
+		j_cnt++;
+	}
+	//print last row
+	if (maze[sqn * j_cnt].wall == 8 || maze[sqn * j_cnt].wall == 9 || maze[sqn * j_cnt].wall == 10 || maze[sqn * j_cnt].wall == 12 || maze[sqn * j_cnt].wall == 11 || maze[sqn * j_cnt].wall == 13 || maze[sqn * j_cnt].wall == 14 || maze[sqn * j_cnt].wall == 15) {
+		//check left
+		cout << "|";
+	}
+	else {
+		cout << " ";
+	}
+	int l_cnt = 0;
+	for (int l = 0; l < sqn - 1; l++) {
+		if (maze[sqn * j_cnt + l].wall == 1 || maze[sqn * j_cnt + l].wall == 3 || maze[sqn * j_cnt + l].wall == 5 || maze[sqn * j_cnt + l].wall == 9 || maze[sqn * j_cnt + l].wall == 7 || maze[sqn * j_cnt + l].wall == 11 || maze[sqn * j_cnt + l].wall == 13 || maze[sqn * j_cnt + l].wall == 15) {
+			//check down
+			if (maze[sqn * j_cnt + l].visited) {
+				cout << "_*";
+			}
+			else {
+				cout << "__";
+			}
+		}
+		else {
+			if (maze[sqn * j_cnt + l].visited) {
+				cout << " *";
+			}
+			else {
+				cout << "  ";
+			}
+		}
+		if (maze[sqn * j_cnt + l].wall == 2 || maze[sqn * j_cnt + l].wall == 3 || maze[sqn * j_cnt + l].wall == 6 || maze[sqn * j_cnt + l].wall == 10 || maze[sqn * j_cnt + l].wall == 7 || maze[sqn * j_cnt + l].wall == 11 || maze[sqn * j_cnt + l].wall == 14 || maze[sqn * j_cnt + l].wall == 15 || maze[sqn * j_cnt + l + 1].wall == 8 || maze[sqn * j_cnt + l + 1].wall == 9 || maze[sqn * j_cnt + l + 1].wall == 10 || maze[sqn * j_cnt + l + 1].wall == 12 || maze[sqn * j_cnt + l + 1].wall == 11 || maze[sqn * j_cnt + l + 1].wall == 13 || maze[sqn * j_cnt + l + 1].wall == 14 || maze[sqn * j_cnt + l + 1].wall == 15) {
+			//check right and left
+			cout << "|";
+		}
+		else {
+			cout << " ";
+		}
+		l_cnt++;
+	}
+	if (maze[sqn * j_cnt + l_cnt].wall == 1 || maze[sqn * j_cnt + l_cnt].wall == 3 || maze[sqn * j_cnt + l_cnt].wall == 5 || maze[sqn * j_cnt + l_cnt].wall == 9 || maze[sqn * j_cnt + l_cnt].wall == 7 || maze[sqn * j_cnt + l_cnt].wall == 11 || maze[sqn * j_cnt + l_cnt].wall == 13 || maze[sqn * j_cnt + l_cnt].wall == 15) {
+		//check down
+		if (maze[sqn * j_cnt + l_cnt].visited) {
+			cout << "_*";
+		}
+		else {
+			cout << "__";
+		}
+	}
+	else {
+		if (maze[sqn * j_cnt + l_cnt].visited) {
+			cout << " *";
+		}
+		else {
+			cout << "  ";
+		}
+	}
+	if (maze[sqn * j_cnt + l_cnt].wall == 2 || maze[sqn * j_cnt + l_cnt].wall == 3 || maze[sqn * j_cnt + l_cnt].wall == 6 || maze[sqn * j_cnt + l_cnt].wall == 10 || maze[sqn * j_cnt + l_cnt].wall == 7 || maze[sqn * j_cnt + l_cnt].wall == 11 || maze[sqn * j_cnt + l_cnt].wall == 14 || maze[sqn * j_cnt + l_cnt].wall == 15) {
+		cout << "|";
+	}
+	else {
+		cout << " ";
+	}
+	cout << "\n";
+}
+int main() {
+	ifstream in1("maze10.txt");
+	int numCell;
+	in1 >> numCell;
+	int startCell;
+	in1 >> startCell;
+	int targetCell;
+	in1 >> targetCell;
+	int id_cnt = 0;
+	//make the maze
+	vector<cell> mymaze;
+	vector<cell> mymaze1;
+	for (int i = 0; i < numCell; i++) {
+		int wall;
+		in1 >> wall;
+		cell newcell = cell(id_cnt, wall);
+		mymaze.push_back(newcell);
+		mymaze1.push_back(newcell);
+		id_cnt++;
+	}
+	DFS(mymaze, numCell, startCell, targetCell);
+	BFS(mymaze1, numCell, startCell, targetCell);
+	/*cout << "\n";
+	cout << "DFS's path:" << "\n";
+	PrintMaze(mymaze, numCell);*/
+	/*cout << "\n";
+	cout << "BFS's path:" << "\n";
+	PrintMaze(mymaze1, numCell);*/
+
+	return 0;
+}
+
+// 20*20maze file：
+
+// 400
+// 0
+// 399
+// 12 6 15 12 5 4 4 6 12 4 6 12 4 5 5 5 5 4 4 7 10 8 4 0 6 10 11 10 10 8 0 3 8 5 4 4 6 9 0 6 8 2 8 2 9 1 4 3 8 1 0 5 0 5 3 8 3 12 1 2 10 8 0 0 4 6 8 4 0 7 10 15 9 4 6 8 5 0 7 10 8 0 3 11 8 3 11 8 2 12 1 4 5 0 0 3 14 10 12 3 8 0 4 5 1 4 5 1 1 0 7 9 4 0 0 5 0 0 0 6 10 11 8 6 14 8 5 6 12 0 5 6 9 0 0 6 9 0 0 2 11 12 1 0 0 0 4 0 2 8 5 0 5 2 11 10 13 0 1 2 12 0 6 10 8 1 1 2 10 8 5 3 14 8 6 10 14 9 4 2 8 3 8 2 11 13 4 1 0 0 5 4 0 0 3 8 0 6 8 2 8 4 2 10 15 12 0 4 0 1 5 1 0 0 4 2 8 2 10 10 10 8 1 2 14 8 0 2 8 5 5 4 0 0 0 0 3 11 10 10 9 2 12 0 0 0 0 0 0 5 5 1 2 8 0 1 7 13 1 3 12 1 1 0 0 3 8 2 10 12 4 4 3 8 0 6 12 4 6 14 9 4 4 0 3 15 10 8 0 2 8 0 4 0 0 0 3 8 2 10 12 0 2 10 14 12 2 8 2 11 9 3 9 3 8 2 12 0 0 2 8 0 0 0 0 0 2 8 3 12 4 4 6 12 0 0 0 2 8 3 8 2 8 2 10 8 1 1 4 2 8 0 0 1 0 3 8 3 8 7 10 10 9 0 0 1 4 5 2 8 3 11 8 6 8 4 2 14 10 14 9 1 5 1 1 7 9 5 1 3 15 13 1 1 1 1 1 1 1 3 
+

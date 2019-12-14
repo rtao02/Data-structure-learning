@@ -1,0 +1,195 @@
+//Prime's algorithm for finding min spanning tree
+
+/*
+read file example:
+The format of the input file, graph.txt, is explained in the following example:
+2 //source node
+10 // number of nodes = 10 (labelled 0, 1, 2, …., 9)
+25 //number of directed edges = 25; the next 25 lines define the edges
+1 3 7 //there is an edge from V1 to V3 with a cost of 7
+5 2 1 //there is an edge from V5 to V2 with a cost of 1
+6 4 5 //there is an edge from V6 to V4 with a cost of 5
+
+*/
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <math.h>
+#include <limits>
+using namespace std;
+
+class n_node { //stand for neighbor_node
+public:
+	int id;  //neighbor id
+	int weight; //edge weight
+	//Do your own constructor(s)
+	n_node() {};
+	n_node(int i, int w) {
+		id = i;
+		weight = w;
+	};
+};
+
+class rt_node {
+public:
+	bool is_visited; //true if visited; else false
+	int cost; //path cost
+	int from; //from node
+	int h_pos;//the positon of this node in heap
+	//Do your own constructor(s)
+	rt_node() {};
+	rt_node(bool iv, int c, int f, int hp) {
+		is_visited = iv;
+		cost = c;
+		from = f;
+		h_pos = hp;
+	};
+};
+
+class h_node {
+public:
+	int from;//node's origin
+	int to;//node's destination
+	int cost; //cost to this node from source
+	//Do your own constructor(s)
+	h_node() {};
+	h_node(int i, int e, int c) {
+		from = i;
+		to = e;
+		cost = c;
+	}
+};
+
+
+int main() {
+	//read data from "graph1.txt"
+	ifstream in1("graph_big.txt");
+	int sourceNode;
+	in1 >> sourceNode;
+	int numNodes;
+	in1 >> numNodes;
+	int numEdges;
+	in1 >> numEdges;
+	//vector<n_node> nodes;
+	//create graph
+	vector < vector<n_node>* > Graph(numNodes);
+	for (int i = 0; i < numEdges; i++) {
+		int src;
+		int dest;
+		int cost;
+		in1 >> src;
+		in1 >> dest;
+		in1 >> cost;
+		//creat normal edge
+		if (Graph[src] == nullptr) {
+			n_node neighbour = n_node(dest, cost);
+			//n_node tempNode = n_node(neighbour->id, neighbour->weight);
+			vector<n_node>* temp = new vector<n_node>;
+			temp->push_back(neighbour);
+			Graph[src] = temp;
+			//delete temp;
+		}
+		else if (Graph[src] != nullptr) {
+			n_node neighbour = n_node(dest, cost);
+			Graph[src]->push_back(neighbour);
+		}
+		//creat reverse edge
+		if (Graph[dest] == nullptr) {
+			n_node neighbour = n_node(src, cost);
+			//n_node tempNode = n_node(neighbour->id, neighbour->weight);
+			vector<n_node>* temp = new vector<n_node>;
+			temp->push_back(neighbour);
+			Graph[dest] = temp;
+			//delete temp;
+		}
+		else if (Graph[dest] != nullptr) {
+			n_node neighbour = n_node(src, cost);
+			Graph[dest]->push_back(neighbour);
+		}
+	}
+	//create a so called infinit numble
+	int a = std::numeric_limits<int>::max();
+	//create routing table
+	vector <rt_node> Routing_Table;
+	for (int j = 0; j < numNodes; j++) {
+		bool init_visited = 0;
+		int init_cost = a;
+		int init_from = -1;
+		int init_hpos = j;
+		rt_node rtTemp = rt_node(init_visited, init_cost, init_from, init_hpos);
+		Routing_Table.push_back(rtTemp);
+	}
+	//generate original heap by routing table's h_pos
+	vector <h_node> Heap;
+	/*int id_cnt = 0;
+	for (int k = 0; k < numNodes; k++) {
+		for (auto it0 = Graph[id_cnt]->begin(); it0 != Graph[id_cnt]->end(); it0++) {
+			h_node curheapnode = h_node(id_cnt, it0->id, a);
+			Heap.push_back(curheapnode);
+		}
+		id_cnt = id_cnt + 1;
+	}*/
+	Heap.size();//for check heap's size
+	//set source
+	Routing_Table[sourceNode].is_visited = 1;
+	Routing_Table[sourceNode].cost = 0;
+	Routing_Table[sourceNode].from = sourceNode;
+	//every loop check one new node
+	int curcheckedNode = sourceNode;
+	int curnumEdges = 2 * numEdges;
+	for (int f = 0; f < numNodes - 1 ; f++) {
+		//add elements to heap
+		for (auto it = Graph[curcheckedNode]->begin(); it != Graph[curcheckedNode]->end(); it++) {
+			if (Routing_Table[it->id].is_visited != 1) {
+				h_node curheapnode = h_node(curcheckedNode, it->id, it->weight);
+				Heap.push_back(curheapnode);
+			}
+		}
+		//use min_heap to choose the smallest cost
+		//generate min heap
+		int numelementHeap = Heap.size();
+		int cur_child = numelementHeap - 1;
+		while (cur_child != 0) {
+			int cur_parent = (cur_child - 1) / 2;
+			if (Heap[cur_parent].cost > Heap[cur_child].cost) {
+				swap(Heap[cur_parent], Heap[cur_child]);
+			}
+			cur_child = cur_child - 1;
+		}
+		/*int cur_child = curnumEdges - 1;
+		for (int p = 0; p < curnumEdges - 1; p++) {
+			int cur_parent = (cur_child - 1) / 2;
+			if (Heap[cur_parent].cost > Heap[cur_child].cost) {
+				swap(Heap[cur_parent], Heap[cur_child]);
+			}
+			cur_child = cur_child - 1;
+		}*/
+		//check one new node
+		int new_checked_node = Heap[0].to;
+		Routing_Table[Heap[0].to].is_visited = 1;
+		Routing_Table[Heap[0].to].cost = Heap[0].cost;
+		Routing_Table[Heap[0].to].from = Heap[0].from;
+		Heap.erase(Heap.begin());
+		curcheckedNode = new_checked_node;
+		
+		for (int k = 0; k < numelementHeap - 1; k++) {
+			for (auto it6 = Heap.begin(); it6 != Heap.end(); it6++) {
+				if (it6->to == new_checked_node) {
+					Heap.erase(it6);
+					break;
+				}
+			}
+		}
+		
+	}
+	//print result
+	int id_cnt3 = 0;
+	int overall_cost = 0;
+	for (auto it3 = Routing_Table.begin(); it3 != Routing_Table.end(); it3++) {
+		cout << Routing_Table[id_cnt3].from << " " << id_cnt3 << " " << Routing_Table[id_cnt3].cost << endl;
+		overall_cost = overall_cost + Routing_Table[id_cnt3].cost;
+		id_cnt3 = id_cnt3 + 1;
+	}
+	cout << "The overall cost of the minimun spanning tree is " << overall_cost;
+
+}
